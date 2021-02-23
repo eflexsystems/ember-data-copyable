@@ -1,6 +1,9 @@
 import getTransform from 'ember-data-copyable/utils/get-transform';
 import isUndefined from 'ember-data-copyable/utils/is-undefined';
-import { IS_COPYABLE } from 'ember-data-copyable/-private/symbols';
+import {
+  IS_COPYABLE,
+  INTERNAL_COPY,
+} from 'ember-data-copyable/-private/symbols';
 import { assign } from '@ember/polyfills';
 import { guidFor } from '@ember/object/internals';
 import { Copyable } from 'ember-copy';
@@ -61,7 +64,7 @@ export default Mixin.create({
     let isSuccessful = false;
 
     try {
-      const model = this._copy(deep, options, _meta);
+      const model = this[INTERNAL_COPY](deep, options, _meta);
       isSuccessful = true;
 
       return model;
@@ -98,7 +101,7 @@ export default Mixin.create({
    * @type {Task}
    * @private
    */
-  _copy: function (deep, options, _meta) {
+  [INTERNAL_COPY]: function (deep, options, _meta) {
     options = assign({}, DEFAULT_OPTIONS, this.copyableOptions, options);
 
     const {
@@ -197,7 +200,7 @@ export default Mixin.create({
 
       if (meta.kind === 'belongsTo') {
         if (value && value.get(IS_COPYABLE)) {
-          attrs[name] = value._copy(deepRel, relOptions, _meta);
+          attrs[name] = value[INTERNAL_COPY](deepRel, relOptions, _meta);
         } else {
           attrs[name] = value;
         }
@@ -205,7 +208,7 @@ export default Mixin.create({
         const firstObject = value.get('firstObject');
 
         if (firstObject && firstObject.get(IS_COPYABLE)) {
-          attrs[name] = value.invoke('_copy', deepRel, relOptions, _meta);
+          attrs[name] = value.invoke(INTERNAL_COPY, deepRel, relOptions, _meta);
         } else {
           attrs[name] = value;
         }
