@@ -1,4 +1,4 @@
-import { test } from 'ember-qunit';
+import { test } from 'qunit';
 import { run } from '@ember/runloop';
 import { allSettled } from 'rsvp';
 

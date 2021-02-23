@@ -1,17 +1,18 @@
 import generateTests from './copyable-tests';
 import setupMirage from '../helpers/setup-mirage';
-import { moduleFor } from 'ember-qunit';
+import { module } from 'qunit';
+import { setupTest } from 'ember-qunit';
 
-moduleFor('copyable', 'Integration | Copyable | sync', {
-  integration: true,
+module('Integration | Copyable | sync', function(hooks) {
+  setupTest(hooks);
 
-  beforeEach() {
+  hooks.beforeEach(function() {
     return setupMirage(this, { async: false });
-  },
+  });
 
-  afterEach() {
+  hooks.afterEach(function() {
    this.server.shutdown();
- }
-});
+ });
 
-generateTests({ async: false });
+  generateTests({ async: false });
+});

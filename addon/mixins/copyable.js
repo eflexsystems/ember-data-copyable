@@ -73,7 +73,7 @@ export default Mixin.create({
    */
   [COPY_TASK_RUNNER]: task(function*(deep, options) {
     const _meta = { copies: {}, transforms: {} };
-    const store = this.get('store');
+    const store = this.store;
     let isSuccessful = false;
 
     try {
@@ -117,7 +117,7 @@ export default Mixin.create({
    * @private
    */
   [COPY_TASK]: task(function*(deep, options, _meta) {
-    options = assign({}, DEFAULT_OPTIONS, this.get('copyableOptions'), options);
+    options = assign({}, DEFAULT_OPTIONS, this.copyableOptions, options);
 
     const {
       ignoreAttributes,
@@ -127,7 +127,7 @@ export default Mixin.create({
     } = options;
     const { copies } = _meta;
     const { modelName } = this.constructor;
-    const store = this.get('store');
+    const store = this.store;
     const guid = guidFor(this);
     const relationships = [];
     let attrs = {};

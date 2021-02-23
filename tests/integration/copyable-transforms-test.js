@@ -1,29 +1,30 @@
 import setupMirage from '../helpers/setup-mirage';
-import { moduleFor, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 import { run } from '@ember/runloop';
 
-moduleFor('copyable', 'Integration | Copyable | transforms', {
-  integration: true,
+module('Integration | Copyable | transforms', function(hooks) {
+  setupTest(hooks);
 
-  beforeEach() {
+  hooks.beforeEach(function() {
     return setupMirage(this, { async: false });
-  },
+  });
 
-  afterEach() {
+  hooks.afterEach(function() {
    this.server.shutdown();
- }
-});
+ });
 
-test('it handles object transform', async function(assert) {
-  assert.expect(3);
+  test('it handles object transform', async function(assert) {
+    assert.expect(3);
 
-  let model = this.store.peekRecord('foo-transform', 1);
+    let model = this.store.peekRecord('foo-transform', 1);
 
-  await run(async () => {
-    let copy = await model.copy(true);
+    await run(async () => {
+      let copy = await model.copy(true);
 
-    assert.equal(model.get('object.foo'), 'bar');
-    assert.equal(copy.get('object.foo'), 'bar');
-    assert.notEqual(copy.get('object'), model.get('object.foo'));
+      assert.equal(model.get('object.foo'), 'bar');
+      assert.equal(copy.get('object.foo'), 'bar');
+      assert.notEqual(copy.get('object'), model.get('object.foo'));
+    });
   });
 });
