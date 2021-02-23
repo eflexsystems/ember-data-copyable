@@ -3,18 +3,18 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { run } from '@ember/runloop';
 
-module('Integration | Copyable | options', function(hooks) {
+module('Integration | Copyable | options', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     return setupMirage(this, { async: false });
   });
 
-  hooks.afterEach(function() {
+  hooks.afterEach(function () {
     this.server.shutdown();
   });
 
-  test('it overwrites attributes', async function(assert) {
+  test('it overwrites attributes', async function (assert) {
     assert.expect(3);
 
     let model = this.store.peekRecord('bar', 1);
@@ -24,8 +24,8 @@ module('Integration | Copyable | options', function(hooks) {
         overwrite: {
           property: null,
           unknownProp: '_bar_',
-          foo: this.store.createRecord('foo', { property: '_foo_' })
-        }
+          foo: this.store.createRecord('foo', { property: '_foo_' }),
+        },
       });
 
       assert.equal(copy.get('property'), null);
@@ -34,14 +34,14 @@ module('Integration | Copyable | options', function(hooks) {
     });
   });
 
-  test('it ignores attributes', async function(assert) {
+  test('it ignores attributes', async function (assert) {
     assert.expect(2);
 
     let model = this.store.peekRecord('bar', 1);
 
     await run(async () => {
       let copy = await model.copy(true, {
-        ignoreAttributes: ['property', 'foo']
+        ignoreAttributes: ['property', 'foo'],
       });
 
       assert.notOk(copy.get('property'));
@@ -49,19 +49,19 @@ module('Integration | Copyable | options', function(hooks) {
     });
   });
 
-  test('it copes other attributes', async function(assert) {
+  test('it copes other attributes', async function (assert) {
     assert.expect(2);
 
     let model = this.store.peekRecord('bar', 1);
 
     model.setProperties({
       one: 1,
-      two: 2
+      two: 2,
     });
 
     await run(async () => {
       let copy = await model.copy(true, {
-        otherAttributes: ['one', 'two']
+        otherAttributes: ['one', 'two'],
       });
 
       assert.equal(copy.get('one'), 1);
@@ -69,7 +69,7 @@ module('Integration | Copyable | options', function(hooks) {
     });
   });
 
-  test('it copies with nested options', async function(assert) {
+  test('it copies with nested options', async function (assert) {
     assert.expect(1);
 
     let model = this.store.peekRecord('bar', 1);
@@ -78,16 +78,16 @@ module('Integration | Copyable | options', function(hooks) {
       let copy = await model.copy(true, {
         relationships: {
           foo: {
-            ignoreAttributes: ['property']
-          }
-        }
+            ignoreAttributes: ['property'],
+          },
+        },
       });
 
       assert.notOk(copy.get('foo.property'));
     });
   });
 
-  test('it handles relational deep copy overrides', async function(assert) {
+  test('it handles relational deep copy overrides', async function (assert) {
     assert.expect(1);
 
     let model = this.store.peekRecord('baz', 1);
@@ -95,8 +95,8 @@ module('Integration | Copyable | options', function(hooks) {
     await run(async () => {
       let copy = await model.copy(true, {
         relationships: {
-          bar: { deep: false }
-        }
+          bar: { deep: false },
+        },
       });
 
       assert.equal(copy.get('bar.foo.id'), 1);

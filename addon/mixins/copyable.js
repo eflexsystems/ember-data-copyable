@@ -1,11 +1,6 @@
 import getTransform from 'ember-data-copyable/utils/get-transform';
 import isUndefined from 'ember-data-copyable/utils/is-undefined';
-import {
-  COPY_TASK,
-  COPY_TASK_RUNNER,
-  IS_COPYABLE
-} from 'ember-data-copyable/-private/symbols';
-import { task, all } from 'ember-concurrency';
+import { IS_COPYABLE } from 'ember-data-copyable/-private/symbols';
 import { assign } from '@ember/polyfills';
 import { guidFor } from '@ember/object/internals';
 import { Copyable } from 'ember-copy';
@@ -31,7 +26,7 @@ const DEFAULT_OPTIONS = {
   overwrite: {},
 
   // Relationship options
-  relationships: {}
+  relationships: {},
 };
 
 export default Mixin.create({
@@ -60,24 +55,13 @@ export default Mixin.create({
    *                          specified options. See DEFAULT_OPTIONS.
    * @return {TaskInstance} A promise like TaskInstance
    */
-  copy(/* deep, options */) {
-    return this.get(COPY_TASK_RUNNER).perform(...arguments);
-  },
-
-  /**
-   * The copy task runner. Allows our copy task to have a drop
-   * concurrency policy
-   *
-   * @type {Task}
-   * @private
-   */
-  [COPY_TASK_RUNNER]: task(function*(deep, options) {
+  copy: function (deep, options) {
     const _meta = { copies: {}, transforms: {} };
     const store = this.store;
     let isSuccessful = false;
 
     try {
-      const model = yield this.get(COPY_TASK).perform(deep, options, _meta);
+      const model = this._copy(deep, options, _meta);
       isSuccessful = true;
 
       return model;
@@ -95,17 +79,15 @@ export default Mixin.create({
         runInDebug(() =>
           // eslint-disable-next-line no-console
           console.error(
-            `[ember-data-copyable] Failed to copy model '${this}'. Cleaning up ${
-              copiesKeys.length
-            } created copies...`
+            `[ember-data-copyable] Failed to copy model '${this}'. Cleaning up ${copiesKeys.length} created copies...`
           )
         );
 
         // Unload all created records
-        copiesKeys.forEach(key => store.unloadRecord(_meta.copies[key]));
+        copiesKeys.forEach((key) => store.unloadRecord(_meta.copies[key]));
       }
     }
-  }).drop(),
+  },
 
   /**
    * The copy task that gets called from `copy`. Does all the grunt work.
@@ -116,14 +98,14 @@ export default Mixin.create({
    * @type {Task}
    * @private
    */
-  [COPY_TASK]: task(function*(deep, options, _meta) {
+  _copy: function (deep, options, _meta) {
     options = assign({}, DEFAULT_OPTIONS, this.copyableOptions, options);
 
     const {
       ignoreAttributes,
       otherAttributes,
       copyByReference,
-      overwrite
+      overwrite,
     } = options;
     const { copies } = _meta;
     const { modelName } = this.constructor;
@@ -142,39 +124,41 @@ export default Mixin.create({
     copies[guid] = model;
 
     // Copy all the attributes
-    this.eachAttribute((name, { type, isFragment, options: attributeOptions }) => {
-      if (ignoreAttributes.includes(name)) {
-        return;
-      } else if (!isUndefined(overwrite[name])) {
-        attrs[name] = overwrite[name];
-      } else if (
-        !isEmpty(type) &&
-        !copyByReference.includes(name) &&
-        !PRIMITIVE_TYPES.includes(type)
-      ) {
-        let value = this.get(name);
+    this.eachAttribute(
+      (name, { type, isFragment, options: attributeOptions }) => {
+        if (ignoreAttributes.includes(name)) {
+          return;
+        } else if (!isUndefined(overwrite[name])) {
+          attrs[name] = overwrite[name];
+        } else if (
+          !isEmpty(type) &&
+          !copyByReference.includes(name) &&
+          !PRIMITIVE_TYPES.includes(type)
+        ) {
+          let value = this.get(name);
 
-        if ((Copyable && Copyable.detect(value)) || (value && isFragment)) {
-          // "value" is an Ember.Object using the ember-copy addon
-          // (ie. old deprecated Ember.Copyable API - if you use
-          // the "Ember Data Model Fragments" addon and "value" is a fragment or
-          // if use your own serializer where you deserialize a value to an
-          // Ember.Object using this Ember.Copyable API)
-          value = value.copy(deep);
-        } else if (!isFragment) {
-          const transform = getTransform(this, type, _meta);
+          if ((Copyable && Copyable.detect(value)) || (value && isFragment)) {
+            // "value" is an Ember.Object using the ember-copy addon
+            // (ie. old deprecated Ember.Copyable API - if you use
+            // the "Ember Data Model Fragments" addon and "value" is a fragment or
+            // if use your own serializer where you deserialize a value to an
+            // Ember.Object using this Ember.Copyable API)
+            value = value.copy(deep);
+          } else if (!isFragment) {
+            const transform = getTransform(this, type, _meta);
 
-          // Run the transform on the value. This should guarantee that we get
-          // a new instance.
-          value = transform.serialize(value, attributeOptions);
-          value = transform.deserialize(value, attributeOptions);
+            // Run the transform on the value. This should guarantee that we get
+            // a new instance.
+            value = transform.serialize(value, attributeOptions);
+            value = transform.deserialize(value, attributeOptions);
+          }
+
+          attrs[name] = value;
+        } else {
+          attrs[name] = this.get(name);
         }
-
-        attrs[name] = value;
-      } else {
-        attrs[name] = this.get(name);
       }
-    });
+    );
 
     // Get all the relationship data
     this.eachRelationship((name, meta) => {
@@ -195,21 +179,16 @@ export default Mixin.create({
       // We dont need to yield for a value if it's just copied by ref
       // or if we are doing a shallow copy
       if (!deep || copyByReference.includes(name)) {
-        try {
-          const ref = this[meta.kind](name);
-          const copyRef = model[meta.kind](name);
+        const ref = this[meta.kind](name);
+        const copyRef = model[meta.kind](name);
 
-          copyRef[`${meta.kind}Relationship`].addRecordDatas(
-            ref[`${meta.kind}Relationship`].members
-          );
-        } catch (e) {
-          attrs[name] = yield this.get(name);
-        }
-
+        copyRef[`${meta.kind}Relationship`].addRecordDatas(
+          ref[`${meta.kind}Relationship`].members
+        );
         continue;
       }
 
-      const value = yield this.get(name);
+      const value = this.get(name);
       const relOptions = options.relationships[name];
       const deepRel =
         relOptions && typeof relOptions.deep === 'boolean'
@@ -218,9 +197,7 @@ export default Mixin.create({
 
       if (meta.kind === 'belongsTo') {
         if (value && value.get(IS_COPYABLE)) {
-          attrs[name] = yield value
-            .get(COPY_TASK)
-            .perform(deepRel, relOptions, _meta);
+          attrs[name] = value._copy(deepRel, relOptions, _meta);
         } else {
           attrs[name] = value;
         }
@@ -228,11 +205,7 @@ export default Mixin.create({
         const firstObject = value.get('firstObject');
 
         if (firstObject && firstObject.get(IS_COPYABLE)) {
-          attrs[name] = yield all(
-            value
-              .getEach(COPY_TASK)
-              .invoke('perform', deepRel, relOptions, _meta)
-          );
+          attrs[name] = value.invoke('_copy', deepRel, relOptions, _meta);
         } else {
           attrs[name] = value;
         }
@@ -247,5 +220,5 @@ export default Mixin.create({
     model.setProperties(attrs);
 
     return model;
-  })
+  },
 });

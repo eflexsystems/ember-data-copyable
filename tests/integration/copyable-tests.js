@@ -11,7 +11,7 @@ export async function getRecord(context, options, modelName, ...args) {
 }
 
 export default function generateTests(options = { async: false }) {
-  test('it shallow copies attributes', async function(assert) {
+  test('it shallow copies attributes', async function (assert) {
     assert.expect(2);
 
     let model;
@@ -28,7 +28,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it shallow copies relationships', async function(assert) {
+  test('it shallow copies relationships', async function (assert) {
     assert.expect(2);
 
     let model, copy;
@@ -54,7 +54,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies belongsTo relationship', async function(assert) {
+  test('it copies belongsTo relationship', async function (assert) {
     assert.expect(4);
 
     let model;
@@ -73,7 +73,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies belongsTo relationship by reference', async function(assert) {
+  test('it copies belongsTo relationship by reference', async function (assert) {
     assert.expect(5);
 
     let model, copy;
@@ -84,7 +84,7 @@ export default function generateTests(options = { async: false }) {
 
     await run(async () => {
       copy = await model.copy(true, {
-        copyByReference: ['foo']
+        copyByReference: ['foo'],
       });
     });
 
@@ -103,7 +103,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies empty belongsTo relationship', async function(assert) {
+  test('it copies empty belongsTo relationship', async function (assert) {
     assert.expect(3);
 
     let model;
@@ -126,7 +126,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies hasMany relationship', async function(assert) {
+  test('it copies hasMany relationship', async function (assert) {
     assert.expect(3);
 
     let model;
@@ -147,7 +147,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies hasMany relationship by reference', async function(assert) {
+  test('it copies hasMany relationship by reference', async function (assert) {
     assert.expect(3);
 
     let model, copy;
@@ -158,7 +158,7 @@ export default function generateTests(options = { async: false }) {
 
     await run(async () => {
       copy = await model.copy(true, {
-        copyByReference: ['foos']
+        copyByReference: ['foos'],
       });
     });
 
@@ -177,7 +177,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies complex objects', async function(assert) {
+  test('it copies complex objects', async function (assert) {
     assert.expect(6);
 
     let model;
@@ -186,7 +186,7 @@ export default function generateTests(options = { async: false }) {
       model = await getRecord(this, options, 'multi', 1);
     });
 
-    await run(async function() {
+    await run(async function () {
       let copy = await model.copy(true);
 
       assert.notEqual(copy.get('bars.firstObject.id'), 1);
@@ -198,7 +198,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies empty objects', async function(assert) {
+  test('it copies empty objects', async function (assert) {
     assert.expect(3);
 
     let model;
@@ -216,7 +216,7 @@ export default function generateTests(options = { async: false }) {
     });
   });
 
-  test('it copies cyclical relationship', async function(assert) {
+  test('it copies cyclical relationship', async function (assert) {
     assert.expect(6);
 
     let model;

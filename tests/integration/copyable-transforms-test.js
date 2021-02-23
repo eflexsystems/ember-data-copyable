@@ -3,18 +3,18 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { run } from '@ember/runloop';
 
-module('Integration | Copyable | transforms', function(hooks) {
+module('Integration | Copyable | transforms', function (hooks) {
   setupTest(hooks);
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     return setupMirage(this, { async: false });
   });
 
-  hooks.afterEach(function() {
-   this.server.shutdown();
- });
+  hooks.afterEach(function () {
+    this.server.shutdown();
+  });
 
-  test('it handles object transform', async function(assert) {
+  test('it handles object transform', async function (assert) {
     assert.expect(3);
 
     let model = this.store.peekRecord('foo-transform', 1);
