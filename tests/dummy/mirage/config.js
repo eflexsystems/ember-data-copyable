@@ -32,4 +32,10 @@ export function testConfig() {
 
   this.get('/foo-fragment-holders');
   this.get('/foo-fragment-holders/:id');
+
+  this.get('/override-options-parents');
+  this.get('/override-options-parents/:id');
+
+  this.get('/override-options-children');
+  this.get('/override-options-children/:id');
 }

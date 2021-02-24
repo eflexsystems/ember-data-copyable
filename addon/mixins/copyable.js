@@ -63,6 +63,10 @@ export default Mixin.create({
     const store = this.store;
     let isSuccessful = false;
 
+    if (options && options.optionsPropertyName) {
+      _meta.optionsPropertyName = options.optionsPropertyName;
+    }
+
     try {
       const model = this[INTERNAL_COPY](deep, options, _meta);
       isSuccessful = true;
@@ -102,7 +106,9 @@ export default Mixin.create({
    * @private
    */
   [INTERNAL_COPY]: function (deep, options, _meta) {
-    options = assign({}, DEFAULT_OPTIONS, this.copyableOptions, options);
+    const optionsPropertyName =
+      _meta.optionsPropertyName ?? this.copyableOptions;
+    options = assign({}, DEFAULT_OPTIONS, this[optionsPropertyName], options);
 
     const {
       ignoreAttributes,
