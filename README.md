@@ -67,7 +67,7 @@ Once the model is setup, we can use the `copy` method on an instance to duplicat
 ### Copy Method Signature
 
 ```js
-async function copy(deep = false, options = {}) {}
+function copy(deep = false, options = {}) {}
 ```
 
 - `deep` : _Boolean_

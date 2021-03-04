@@ -1,55 +1,48 @@
 import setupMirage from '../helpers/setup-mirage';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { run } from '@ember/runloop';
 
 module('Integration | Copyable | options', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function () {
-    return setupMirage(this, { async: false });
+    return setupMirage(this);
   });
 
   hooks.afterEach(function () {
     this.server.shutdown();
   });
 
-  test('it overwrites attributes', async function (assert) {
+  test('it overwrites attributes', function (assert) {
     assert.expect(3);
 
     let model = this.store.peekRecord('bar', 1);
-
-    await run(async () => {
-      let copy = await model.copy(true, {
-        overwrite: {
-          property: null,
-          unknownProp: '_bar_',
-          foo: this.store.createRecord('foo', { property: '_foo_' }),
-        },
-      });
-
-      assert.equal(copy.get('property'), null);
-      assert.equal(copy.get('unknownProp'), '_bar_');
-      assert.equal(copy.get('foo.property'), '_foo_');
+    let copy = model.copy(true, {
+      overwrite: {
+        property: null,
+        unknownProp: '_bar_',
+        foo: this.store.createRecord('foo', { property: '_foo_' }),
+      },
     });
+
+    assert.equal(copy.property, null);
+    assert.equal(copy.unknownProp, '_bar_');
+    assert.equal(copy.foo.property, '_foo_');
   });
 
-  test('it ignores attributes', async function (assert) {
+  test('it ignores attributes', function (assert) {
     assert.expect(2);
 
     let model = this.store.peekRecord('bar', 1);
-
-    await run(async () => {
-      let copy = await model.copy(true, {
-        ignoreAttributes: ['property', 'foo'],
-      });
-
-      assert.notOk(copy.get('property'));
-      assert.notOk(copy.get('foo'));
+    let copy = model.copy(true, {
+      ignoreAttributes: ['property', 'foo'],
     });
+
+    assert.notOk(copy.property);
+    assert.notOk(copy.foo);
   });
 
-  test('it copes other attributes', async function (assert) {
+  test('it copes other attributes', function (assert) {
     assert.expect(2);
 
     let model = this.store.peekRecord('bar', 1);
@@ -59,65 +52,51 @@ module('Integration | Copyable | options', function (hooks) {
       two: 2,
     });
 
-    await run(async () => {
-      let copy = await model.copy(true, {
-        otherAttributes: ['one', 'two'],
-      });
-
-      assert.equal(copy.get('one'), 1);
-      assert.equal(copy.get('two'), 2);
+    let copy = model.copy(true, {
+      otherAttributes: ['one', 'two'],
     });
+
+    assert.equal(copy.one, 1);
+    assert.equal(copy.two, 2);
   });
 
-  test('it copies with nested options', async function (assert) {
+  test('it copies with nested options', function (assert) {
     assert.expect(1);
 
     let model = this.store.peekRecord('bar', 1);
-
-    await run(async () => {
-      let copy = await model.copy(true, {
-        relationships: {
-          foo: {
-            ignoreAttributes: ['property'],
-          },
+    let copy = model.copy(true, {
+      relationships: {
+        foo: {
+          ignoreAttributes: ['property'],
         },
-      });
-
-      assert.notOk(copy.get('foo.property'));
+      },
     });
+
+    assert.notOk(copy.foo.property);
   });
 
-  test('it handles relational deep copy overrides', async function (assert) {
+  test('it handles relational deep copy overrides', function (assert) {
     assert.expect(1);
 
     let model = this.store.peekRecord('baz', 1);
-
-    await run(async () => {
-      let copy = await model.copy(true, {
-        relationships: {
-          bar: { deep: false },
-        },
-      });
-
-      assert.equal(copy.get('bar.foo.id'), 1);
+    let copy = model.copy(true, {
+      relationships: {
+        bar: { deep: false },
+      },
     });
+
+    assert.equal(copy.bar.foo.id, 1);
   });
 
-  test('it can override the property used for copyable options', async function (assert) {
+  test('it can override the property used for copyable options', function (assert) {
     assert.expect(2);
 
     let model = this.store.peekRecord('override-options-parent', 1);
-
-    await run(async () => {
-      let copy = await model.copy(true, {
-        optionsPropertyName: 'otherOptions',
-      });
-
-      assert.equal(copy.get('property'), 'derp');
-      assert.equal(
-        copy.get('overrideOptionsChilden.firstObject.property'),
-        'herp'
-      );
+    let copy = model.copy(true, {
+      optionsPropertyName: 'otherOptions',
     });
+
+    assert.equal(copy.property, 'derp');
+    assert.equal(copy.overrideOptionsChilden.firstObject.property, 'herp');
   });
 });

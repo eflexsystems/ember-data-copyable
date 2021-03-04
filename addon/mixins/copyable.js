@@ -52,7 +52,6 @@ export default Mixin.create({
    *
    * @method copy
    * @public
-   * @async
    * @param  {Boolean} deep If `true`, a deep copy of the model will be made
    * @param  {Object} options Options for the copy which will override model
    *                          specified options. See DEFAULT_OPTIONS.

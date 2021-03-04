@@ -1,5 +1,5 @@
 {
-  "name": "ember-data-copyable",
+  "name": "@eflexsystems/ember-data-copyable",
   "version": "1.1.2",
   "description": "Intelligently copy an Ember Data model and all of its relationships",
   "keywords": [
@@ -9,15 +9,15 @@
     "clone",
     "ember-data"
   ],
-  "repository": "https://github.com/offirgolan/ember-data-copyable",
+  "repository": "https://github.com/eflexsystems/ember-data-copyable",
   "license": "MIT",
-  "author": "Offir Golan <offirgolan@gmail.com>",
+  "author": "Jacob Jewell <jacobjewell@eflexsystems.com>",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
-  "bugs": "https://github.com/offirgolan/ember-data-copyable/issues",
-  "homepage": "https://github.com/offirgolan/ember-data-copyable",
+  "bugs": "https://github.com/eflexsystems/ember-data-copyable/issues",
+  "homepage": "https://github.com/eflexsystems/ember-data-copyable",
   "scripts": {
     "build": "ember build --environment=production",
     "lint": "npm-run-all --aggregate-output --continue-on-error --parallel 'lint:!(fix)'",
