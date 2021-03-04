@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-  name: 'ember-data-copyable'
+  name: 'ember-data-copyable',
 };

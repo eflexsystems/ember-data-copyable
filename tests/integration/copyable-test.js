@@ -96,10 +96,7 @@ module('Integration | Copyable', function (hooks) {
 
     assert.deepEqual(model.hasMany('foos').ids(), copy.hasMany('foos').ids());
     assert.equal(model.foos.length, copy.foos.length);
-    assert.deepEqual(
-      model.foos.getEach('id'),
-      copy.foos.getEach('id')
-    );
+    assert.deepEqual(model.foos.getEach('id'), copy.foos.getEach('id'));
   });
 
   test('it copies complex objects', function (assert) {
