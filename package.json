@@ -1,6 +1,6 @@
 {
   "name": "@eflexsystems/ember-data-copyable",
-  "version": "1.1.2",
+  "version": "1.1.2-1",
   "description": "Intelligently copy an Ember Data model and all of its relationships",
   "keywords": [
     "ember-addon",
