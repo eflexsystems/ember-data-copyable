@@ -105,8 +105,7 @@ export default Mixin.create({
    * @private
    */
   [INTERNAL_COPY]: function (deep, options, _meta) {
-    const optionsPropertyName =
-      _meta.optionsPropertyName ?? this.copyableOptions;
+    const optionsPropertyName = _meta.optionsPropertyName ?? 'copyableOptions';
     options = assign({}, DEFAULT_OPTIONS, this[optionsPropertyName], options);
 
     const {
